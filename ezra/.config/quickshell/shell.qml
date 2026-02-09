@@ -33,6 +33,7 @@ PanelWindow {
     anchors.left: true
     anchors.right: true
     implicitHeight: 30
+
     color: root.colBg
 
     RowLayout {
@@ -59,20 +60,45 @@ PanelWindow {
         Item { Layout.fillWidth: true }
 
 	// Battery
-	Process {
+	/* Initial Battery Attempt
+	Process{
 		id: batteryProc
-		property real batteryPercentage: UPower.displayDevice.percentage
-		//root.batteryPercent = Math.round(100 * batteryPercentage)
-		//Component.onCompleted: running = true
+		command: ["sh", "-c", "upower --battery | grep percentage"]
+		
+		running: true
+
+		stdout: StdioCollector{
+			onStreamFinished: batteryPercent.text = this.text
+		
+		}
 	}
 	Text{
 		text: "Battery: " + batteryPercent + "%"
 		color: root.colRed
 		font {family: root.fontFamily; pixelSize: root.fontSize; bold: true}
 	}
+	*/
 
-	Rectangle { width: 1; height: 16; color: root.colMuted }
+       // Battery From Carson Config
+       Text {
+	       id: battery
 
+	       color: root.colRed
+	       font {family: root.fontFamily;pixelSize: root.fontSize; bold: true}
+
+	       Process{
+		       id: batteryProc
+		       command: ["sh", "-c", "upower --battery | grep percentage | awk -F '  ' '{print $8'}"]
+
+		       running: true
+		       stdout: StdioCollector{
+			       onStreamFinished: battery.text = "Battery: " + this.text
+	
+		       }
+	       }
+       }
+
+       Rectangle { width: 1; height: 16; color: root.colMuted }
 	
 	// CPU
 	Process {
